@@ -1,10 +1,10 @@
 const STROKE = 0
 const FILL = STROKE === 0
 
-const SCALE = 1.01
-const PER_FRAME = 10
+const SCALE = 1.013
+const PER_FRAME = 20
 
-const WIDTH = 600
+const WIDTH = 800
 const HEIGHT = 600
 
 const mouse = { x: 0, y: 0 }
@@ -12,6 +12,8 @@ const mouse = { x: 0, y: 0 }
 let baseColor = "white"
 
 let StopDrawing = false
+
+const STEPS_TILL_FULL = 10
 
 var Context = null
 // const color01 = "rgb(247, 74, 0)";
@@ -43,6 +45,8 @@ function getCircle(diameter, cx, cy, color) {
     cy,
     kidColor: Utils.randColor(),
     diameter: acDiameter,
+    drawnDiameter: acDiameter,
+    step: 0,
   }
 
   simpleDrawCircle(Context, obj)
@@ -63,13 +67,13 @@ function simpleDrawCircle(ctx, circle) {
   const useStroke = false
 
   ctx.beginPath()
-  ctx.arc(circle.cx, circle.cy, circle.diameter / 2, 0, 2 * Math.PI, false)
+  ctx.arc(circle.cx, circle.cy, circle.drawnDiameter / 2, 0, 2 * Math.PI, false)
   let fillStyle = useStroke ? (FILL ? circle.color : "none") : circle.color
   ctx.fillStyle = fillStyle
   if (fillStyle !== "none") ctx.fill()
   ctx.lineWidth = STROKE
   ctx.strokeStyle = useStroke ? circle.color : "none"
-  // ctx.stroke();
+  // ctx.stroke()
 }
 
 window.onload = function() {
@@ -111,25 +115,33 @@ window.onload = function() {
     newPoint = Utils.matXvect3(
       Utils.translateMat(-mouse.x, -mouse.y),
       newPoint
-    );
+    )
 
     // prettier-ignore
     newPoint = Utils.matXvect3(
       Utils.scaleMat(scaleFactor),
       newPoint
-    );
+    )
 
-    newPoint = Utils.matXvect3(Utils.rotateMat(0.004), newPoint)
+    // prettier-ignore
+    newPoint = Utils.matXvect3(
+      Utils.rotateMat(0.004),
+      newPoint
+    )
 
     // prettier-ignore
     newPoint = Utils.matXvect3(
       Utils.translateMat(mouse.x, mouse.y),
       newPoint
-    );
+    )
 
     point.cx = newPoint[0]
     point.cy = newPoint[1]
     point.diameter *= scaleFactor
+    point.drawnDiameter =
+      point.step > STEPS_TILL_FULL
+        ? point.diameter
+        : (point.diameter / STEPS_TILL_FULL) * point.step
   }
 
   let eachTime = 0
@@ -137,9 +149,10 @@ window.onload = function() {
   function step() {
     if (StopDrawing) return
 
-    eachTime = (eachTime + 1) % 1
+    eachTime = (eachTime + 1) % 10
 
     if (eachTime === 0)
+      // Create new random circles
       for (let i = 0; i < PER_FRAME; i++) {
         drawInLocalRoot(root, {
           x: Utils.randUntil(WIDTH),
@@ -147,13 +160,15 @@ window.onload = function() {
         })
       }
 
-    // console.log(mouse);
+    // console.log(mouse)
 
     clearScreen(Context)
 
     const nrCircles = recursiveUpdate(root)
 
     function recursiveUpdate(circle) {
+      circle.step++
+
       updatePoint(SCALE, circle)
 
       simpleDrawCircle(Context, circle)
@@ -191,7 +206,7 @@ window.onload = function() {
     StopDrawing = true
 
     // if (rad > 0) {
-    //   let c = getCircle(rad * 2, evt.clientX, evt.clientY);
+    //   let c = getCircle(rad * 2, evt.clientX, evt.clientY)
     // }
   }
 
@@ -214,11 +229,11 @@ window.onload = function() {
       )
       smallestDistances.push(Utils.getRadius(localRoot, point))
 
-      // console.log(smallestDistances);
+      // console.log(smallestDistances)
 
       let bestDiameter = Math.min(...smallestDistances) * 2
 
-      // console.log(bestDiameter);
+      // console.log(bestDiameter)
 
       // prettier-ignore
       if (
@@ -235,13 +250,13 @@ window.onload = function() {
 
         // newColor = old == color01 ? color02 : color01;
 
-        // newColor = Utils.randColor();
+        // newColor = Utils.randColor()
 
         newColor = localRoot.kidColor;
 
         localRoot.kids.push(
           getCircle(bestDiameter, point.x, point.y, newColor)
-        );
+        )
       }
     }
   }
