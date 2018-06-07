@@ -16,6 +16,7 @@ const Data = {
   ROTATE: 0.004,
   EVERY_FRAMES: 10,
   ColorSchema: "sameKids",
+  DivBy: 3,
   color01: Utils.randColor(),
   color02: Utils.randColor(),
   color03: Utils.randColor(),
@@ -24,6 +25,7 @@ const Data = {
 const gui = new dat.GUI()
 gui.add(Data, "SCALE", 1.0, 1.15, 0.001)
 gui.add(Data, "PER_FRAME", 1, 100, 1)
+gui.add(Data, "DivBy", 1, 10, 1)
 gui.add(Data, "STEPS_TILL_FULL", 1, 100, 1)
 gui.add(Data, "ROTATE", 0, 0.15, 0.001)
 gui.add(Data, "EVERY_FRAMES", 1, 100, 1)
@@ -245,41 +247,34 @@ window.onload = function() {
 
       let bestDiameter = Math.min(...smallestDistances) * 2
 
-      if (
-        bestDiameter > 0
-        // && bestDiameter * 17 > localRoot.diameter
-        // && bestDiameter > 5
-      ) {
-        if (bestDiameter > localRoot.diameter / 3) bestDiameter /= 3
+      if (bestDiameter > 0) {
+        if (bestDiameter > localRoot.diameter / Data.DivBy)
+          bestDiameter /= Data.DivBy
 
-        let old = localRoot.color
-        let newColor
-
-        switch (Data.ColorSchema) {
-          case "sameKids":
-            newColor = localRoot.kidColor
-            break
-
-          case "2Colors":
-            newColor = old == Data.color01 ? Data.color02 : Data.color01
-            break
-
-          case "3Colors":
-            newColor =
-              old == Data.color01
-                ? Data.color02
-                : old == Data.color02
-                  ? Data.color03
-                  : Data.color01
-            break
-
-          case "random":
-          default:
-            newColor = Utils.randColor()
-        }
-
+        let newColor = getNewColor(localRoot)
         localRoot.kids.push(getCircle(bestDiameter, point.x, point.y, newColor))
       }
     }
+  }
+}
+
+function getNewColor(parent) {
+  switch (Data.ColorSchema) {
+    case "sameKids":
+      return parent.kidColor
+
+    case "2Colors":
+      return parent.color == Data.color01 ? Data.color02 : Data.color01
+
+    case "3Colors":
+      return parent.color == Data.color01
+        ? Data.color02
+        : parent.color == Data.color02
+          ? Data.color03
+          : Data.color01
+
+    case "random":
+    default:
+      return Utils.randColor()
   }
 }
