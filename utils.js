@@ -57,7 +57,7 @@ const Utils = {
     return x * x + y * y
   },
 
-  getRadius: (oldCircle, { x, y }) => {
+  getRadius: (stroke, oldCircle, { x, y }) => {
     const dsquare = Utils.distanceSquare(oldCircle.cx, oldCircle.cy, x, y)
     const radSquare = Math.pow(oldCircle.diameter / 2, 2)
     const distance = Math.sqrt(dsquare)
@@ -65,13 +65,13 @@ const Utils = {
 
     let diff = dsquare < radSquare ? bigRadius - distance : distance - bigRadius
 
-    diff -= STROKE / 2
+    diff -= stroke / 2
     return diff
   },
 
-  isInside: (oldCircle, { x, y }) => {
+  isInside: (stroke, oldCircle, { x, y }) => {
     const dsquare = Utils.distanceSquare(oldCircle.cx, oldCircle.cy, x, y)
-    const innerRad = (oldCircle.diameter - STROKE) / 2
+    const innerRad = (oldCircle.diameter - stroke) / 2
     const radSquare = innerRad * innerRad
 
     return dsquare < radSquare
