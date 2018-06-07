@@ -13,25 +13,26 @@ const Data = {
   SCALE: 1.013,
   PER_FRAME: 20,
   STEPS_TILL_FULL: 10,
+  ROTATE: 0.004,
+  EVERY_FRAMES: 10,
+  ColorSchema: "sameKids",
+  color01: Utils.randColor(),
+  color02: Utils.randColor(),
+  color03: Utils.randColor(),
 }
 
 const gui = new dat.GUI()
 gui.add(Data, "SCALE", 1.0, 1.15, 0.001)
 gui.add(Data, "PER_FRAME", 1, 100, 1)
 gui.add(Data, "STEPS_TILL_FULL", 1, 100, 1)
+gui.add(Data, "ROTATE", 0, 0.15, 0.001)
+gui.add(Data, "EVERY_FRAMES", 1, 100, 1)
+gui.add(Data, "ColorSchema", ["sameKids", "2Colors", "3Colors", "random"])
+gui.addColor(Data, "color01")
+gui.addColor(Data, "color02")
+gui.addColor(Data, "color03")
 
 var Context = null
-// const color01 = "rgb(247, 74, 0)";
-// const color02 = "rgb(102, 7, 166)";
-// const color03 = "rgb(247, 211, 0)";
-
-// const color01 = "black";
-// const color02 = "white";
-// const color03 = "red";
-
-const color01 = Utils.randColor()
-const color02 = Utils.randColor()
-const color03 = Utils.randColor()
 
 function getCircle(diameter, cx, cy, color) {
   let acDiameter = diameter - Data.STROKE
@@ -69,10 +70,11 @@ function clearScreen(ctx) {
 }
 
 function simpleDrawCircle(ctx, circle) {
-  const useStroke = false
+  const useStroke = true
 
   ctx.beginPath()
   ctx.arc(circle.cx, circle.cy, circle.drawnDiameter / 2, 0, 2 * Math.PI, false)
+  ctx.closePath()
   let fillStyle = useStroke
     ? Data.FILL()
       ? circle.color
@@ -116,11 +118,11 @@ window.onload = function() {
     false
   )
 
-  var root = getCircle(WIDTH, WIDTH / 2, HEIGHT / 2, color01)
+  var root = getCircle(WIDTH, WIDTH / 2, HEIGHT / 2, Data.color01)
   // So it's not popping hard
   root.step = Data.STEPS_TILL_FULL
 
-  function updatePoint(scaleFactor, point) {
+  function updatePoint(point) {
     let newPoint = [point.cx, point.cy, 1]
 
     // prettier-ignore
@@ -131,13 +133,13 @@ window.onload = function() {
 
     // prettier-ignore
     newPoint = Utils.matXvect3(
-      Utils.scaleMat(scaleFactor),
+      Utils.scaleMat(Data.SCALE),
       newPoint
     )
 
     // prettier-ignore
     newPoint = Utils.matXvect3(
-      Utils.rotateMat(0.004),
+      Utils.rotateMat(Data.ROTATE),
       newPoint
     )
 
@@ -149,7 +151,7 @@ window.onload = function() {
 
     point.cx = newPoint[0]
     point.cy = newPoint[1]
-    point.diameter *= scaleFactor
+    point.diameter *= Data.SCALE
     point.drawnDiameter =
       point.step > Data.STEPS_TILL_FULL
         ? point.diameter
@@ -161,7 +163,7 @@ window.onload = function() {
   function step() {
     if (StopDrawing) return
 
-    eachTime = (eachTime + 1) % 10
+    eachTime = (eachTime + 1) % Data.EVERY_FRAMES
 
     if (eachTime === 0)
       // Create new random circles
@@ -181,7 +183,7 @@ window.onload = function() {
     function recursiveUpdate(circle) {
       circle.step++
 
-      updatePoint(Data.SCALE, circle)
+      updatePoint(circle)
 
       simpleDrawCircle(Context, circle)
 
@@ -241,34 +243,42 @@ window.onload = function() {
       )
       smallestDistances.push(Utils.getRadius(Data.STROKE, localRoot, point))
 
-      // console.log(smallestDistances)
-
       let bestDiameter = Math.min(...smallestDistances) * 2
 
-      // console.log(bestDiameter)
-
-      // prettier-ignore
       if (
         bestDiameter > 0
         // && bestDiameter * 17 > localRoot.diameter
         // && bestDiameter > 5
       ) {
-        if (bestDiameter > localRoot.diameter / 3) bestDiameter /= 3;
+        if (bestDiameter > localRoot.diameter / 3) bestDiameter /= 3
 
-        let old = localRoot.color;
-        let newColor ;
+        let old = localRoot.color
+        let newColor
 
-        // newColor=old == color01 ? color02 : old == color02 ? color03 : color01;
+        switch (Data.ColorSchema) {
+          case "sameKids":
+            newColor = localRoot.kidColor
+            break
 
-        // newColor = old == color01 ? color02 : color01;
+          case "2Colors":
+            newColor = old == Data.color01 ? Data.color02 : Data.color01
+            break
 
-        // newColor = Utils.randColor()
+          case "3Colors":
+            newColor =
+              old == Data.color01
+                ? Data.color02
+                : old == Data.color02
+                  ? Data.color03
+                  : Data.color01
+            break
 
-        newColor = localRoot.kidColor;
+          case "random":
+          default:
+            newColor = Utils.randColor()
+        }
 
-        localRoot.kids.push(
-          getCircle(bestDiameter, point.x, point.y, newColor)
-        )
+        localRoot.kids.push(getCircle(bestDiameter, point.x, point.y, newColor))
       }
     }
   }

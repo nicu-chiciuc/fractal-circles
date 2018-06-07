@@ -43,6 +43,10 @@ const Utils = {
     )},${Utils.randUntil(256)})`
   },
 
+  toHex: d => {
+    return ("0" + Number(d).toString(16)).slice(-2).toUpperCase()
+  },
+
   randUntil: max => {
     return Math.floor(Math.random() * max)
   },
