@@ -1,5 +1,5 @@
-const WIDTH = 800
-const HEIGHT = 600
+let WIDTH = window.innerWidth
+let HEIGHT = window.innerHeight
 
 const mouse = { x: WIDTH / 2, y: HEIGHT / 2 }
 
@@ -11,7 +11,7 @@ const Data = {
   STROKE: 0,
   FILL: () => Data.STROKE === 0,
   SCALE: 1.013,
-  PER_FRAME: 20,
+  PER_FRAME: 10,
   STEPS_TILL_FULL: 10,
   ROTATE: 0.004,
   EVERY_FRAMES: 10,
@@ -20,6 +20,7 @@ const Data = {
   color01: Utils.randColor(),
   color02: Utils.randColor(),
   color03: Utils.randColor(),
+  alpha: 1,
 }
 
 const gui = new dat.GUI()
@@ -33,6 +34,9 @@ gui.add(Data, "ColorSchema", ["sameKids", "2Colors", "3Colors", "random"])
 gui.addColor(Data, "color01")
 gui.addColor(Data, "color02")
 gui.addColor(Data, "color03")
+// gui.add(Data, "alpha", 0, 1, 0.01).onChange(val => {
+//   Context.globalAlpha = val
+// })
 
 var Context = null
 
@@ -68,15 +72,25 @@ function clearScreen(ctx) {
   ctx.closePath()
 
   ctx.fillStyle = baseColor
+  ctx.globalAlpha = 1
   ctx.fill()
+  ctx.globalAlpha = Data.alpha
 }
 
 function simpleDrawCircle(ctx, circle) {
   const useStroke = true
 
   ctx.beginPath()
-  ctx.arc(circle.cx, circle.cy, circle.drawnDiameter / 2, 0, 2 * Math.PI, false)
+  ctx.arc(
+    circle.cx,
+    circle.cy,
+    circle.drawnDiameter / 2 + Data.STROKE / 2,
+    0,
+    2 * Math.PI,
+    false
+  )
   ctx.closePath()
+
   let fillStyle = useStroke
     ? Data.FILL()
       ? circle.color
@@ -87,7 +101,16 @@ function simpleDrawCircle(ctx, circle) {
   if (fillStyle !== "none") ctx.fill()
   ctx.lineWidth = Data.STROKE
   ctx.strokeStyle = useStroke ? circle.color : "none"
-  // ctx.stroke()
+  ctx.stroke()
+}
+
+window.onresize = function(event) {
+  WIDTH = window.innerWidth
+  HEIGHT = window.innerHeight
+  canvas.width = WIDTH
+  canvas.height = HEIGHT
+
+  console.log({ WIDTH, HEIGHT })
 }
 
 window.onload = function() {
@@ -169,14 +192,11 @@ window.onload = function() {
 
     if (eachTime === 0)
       // Create new random circles
-      for (let i = 0; i < Data.PER_FRAME; i++) {
+      for (let i = 0; i < Data.PER_FRAME; i++)
         drawInLocalRoot(root, {
           x: Utils.randUntil(WIDTH),
           y: Utils.randUntil(HEIGHT),
         })
-      }
-
-    // console.log(mouse)
 
     clearScreen(Context)
 
@@ -231,13 +251,12 @@ window.onload = function() {
     if (!Utils.isInside(Data.STROKE, root, point)) return
 
     // Is inside one of the kids
-    const inside = localRoot.kids.find(kid => {
-      return Utils.isInside(Data.STROKE, kid, point)
-    })
+    const inside = localRoot.kids.find(kid =>
+      Utils.isInside(Data.STROKE, kid, point)
+    )
 
-    if (inside) {
-      drawInLocalRoot(inside, point)
-    } else {
+    if (inside) drawInLocalRoot(inside, point)
+    else {
       // const smallestDistances = [Utils.getRadius(Data.STROKE, localRoot, point)];
 
       const smallestDistances = localRoot.kids.map(kid =>
