@@ -40,6 +40,32 @@ gui.addColor(Data, "color03")
 
 var Context = null
 
+var gn = new GyroNorm()
+
+gn.init()
+  .then(() => {
+    gn.start(data => {
+      console.log(data)
+      // Process:
+      // data.do.alpha  ( deviceorientation event alpha value )
+      // data.do.beta   ( deviceorientation event beta value )
+      // data.do.gamma  ( deviceorientation event gamma value )
+      // data.do.absolute ( deviceorientation event absolute value )
+      // data.dm.x    ( devicemotion event acceleration x value )
+      // data.dm.y    ( devicemotion event acceleration y value )
+      // data.dm.z    ( devicemotion event acceleration z value )
+      // data.dm.gx   ( devicemotion event accelerationIncludingGravity x value )
+      // data.dm.gy   ( devicemotion event accelerationIncludingGravity y value )
+      // data.dm.gz   ( devicemotion event accelerationIncludingGravity z value )
+      // data.dm.alpha  ( devicemotion event rotationRate alpha value )
+      // data.dm.beta   ( devicemotion event rotationRate beta value )
+      // data.dm.gamma  ( devicemotion event rotationRate gamma value )
+    })
+  })
+  .catch(e => {
+    // Catch if the DeviceOrientation or DeviceMotion is not supported by the browser or device
+  })
+
 function getCircle(diameter, cx, cy, color) {
   let acDiameter = diameter - Data.STROKE
   let useStroke = true
@@ -57,7 +83,7 @@ function getCircle(diameter, cx, cy, color) {
     cy,
     kidColor: Utils.randColor(),
     diameter: acDiameter,
-    drawnDiameter: acDiameter,
+    drawnDiameter: 0,
     step: 0,
   }
 
@@ -248,7 +274,7 @@ window.onload = function() {
 
   function drawInLocalRoot(localRoot, point) {
     // TODO: put to upper function
-    if (!Utils.isInside(Data.STROKE, root, point)) return
+    if (!Utils.isInside(Data.STROKE, root, point, true)) return
 
     // Is inside one of the kids
     const inside = localRoot.kids.find(kid =>

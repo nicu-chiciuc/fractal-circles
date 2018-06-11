@@ -73,9 +73,13 @@ const Utils = {
     return diff
   },
 
-  isInside: (stroke, oldCircle, { x, y }) => {
+  isInside: (stroke, oldCircle, { x, y }, useDrawnDiameter = false) => {
     const dsquare = Utils.distanceSquare(oldCircle.cx, oldCircle.cy, x, y)
-    const innerRad = (oldCircle.diameter - stroke) / 2
+    const diameter = useDrawnDiameter
+      ? oldCircle.drawnDiameter
+      : oldCircle.diameter
+
+    const innerRad = (diameter - stroke) / 2
     const radSquare = innerRad * innerRad
 
     return dsquare < radSquare
