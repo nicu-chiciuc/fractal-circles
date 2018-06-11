@@ -42,27 +42,54 @@ var Context = null
 
 var gn = new GyroNorm()
 
-gn.init()
+var Elems = {
+  alpha: document.getElementById("alpha"),
+  beta: document.getElementById("beta"),
+  gamma: document.getElementById("gamma"),
+  mouseX: document.getElementById("mouseX"),
+  mouseY: document.getElementById("mouseY"),
+}
+
+const maxGamma = 30
+const maxBeta = 30
+
+gn
+  .init()
   .then(() => {
     gn.start(data => {
-      console.log(data)
+      const beta = data.do.beta
+      const gamma = data.do.gamma
+      Elems.alpha.innerHTML = "alpha: " + data.do.alpha
+      Elems.beta.innerHTML = "beta: " + beta
+      Elems.gamma.innerHTML = "gamma: " + gamma
+
+      Elems.mouseX.innerHTML = "mouseX: " + mouse.x
+      Elems.mouseY.innerHTML = "mouseY: " + mouse.y
+
+      let goodGamma = gamma
+      goodGamma = Math.min(goodGamma, maxGamma)
+      goodGamma = Math.max(goodGamma, -maxGamma)
+
+      let goodBeta = beta
+      goodBeta = Math.min(goodBeta, maxBeta)
+      goodBeta = Math.max(goodBeta, -maxBeta)
+
+      Elems.mouseX.innerHTML = goodGamma + ", " + goodBeta
+
+      mouse.x = (goodGamma + maxGamma) / (maxGamma * 2) * WIDTH
+      mouse.y = (goodBeta + maxBeta) / (maxBeta * 2) * HEIGHT
+
+      Elems.mouseX.innerHTML = "mouseX: " + mouse.x
+      Elems.mouseY.innerHTML = "mouseY: " + mouse.y
       // Process:
       // data.do.alpha  ( deviceorientation event alpha value )
       // data.do.beta   ( deviceorientation event beta value )
       // data.do.gamma  ( deviceorientation event gamma value )
       // data.do.absolute ( deviceorientation event absolute value )
-      // data.dm.x    ( devicemotion event acceleration x value )
-      // data.dm.y    ( devicemotion event acceleration y value )
-      // data.dm.z    ( devicemotion event acceleration z value )
-      // data.dm.gx   ( devicemotion event accelerationIncludingGravity x value )
-      // data.dm.gy   ( devicemotion event accelerationIncludingGravity y value )
-      // data.dm.gz   ( devicemotion event accelerationIncludingGravity z value )
-      // data.dm.alpha  ( devicemotion event rotationRate alpha value )
-      // data.dm.beta   ( devicemotion event rotationRate beta value )
-      // data.dm.gamma  ( devicemotion event rotationRate gamma value )
     })
   })
   .catch(e => {
+    console.warn("Not supported orientation")
     // Catch if the DeviceOrientation or DeviceMotion is not supported by the browser or device
   })
 
@@ -118,9 +145,7 @@ function simpleDrawCircle(ctx, circle) {
   ctx.closePath()
 
   let fillStyle = useStroke
-    ? Data.FILL()
-      ? circle.color
-      : "none"
+    ? Data.FILL() ? circle.color : "none"
     : circle.color
 
   ctx.fillStyle = fillStyle
@@ -206,7 +231,7 @@ window.onload = function() {
     point.drawnDiameter =
       point.step > Data.STEPS_TILL_FULL
         ? point.diameter
-        : (point.diameter / Data.STEPS_TILL_FULL) * point.step
+        : point.diameter / Data.STEPS_TILL_FULL * point.step
   }
 
   let eachTime = 0
@@ -253,6 +278,13 @@ window.onload = function() {
         baseColor = root.color
         return true
       }
+    })
+
+    simpleDrawCircle(Context, {
+      cx: mouse.x,
+      cy: mouse.y,
+      drawnDiameter: 10,
+      color: "black",
     })
 
     window.requestAnimationFrame(step)
@@ -314,9 +346,7 @@ function getNewColor(parent) {
     case "3Colors":
       return parent.color == Data.color01
         ? Data.color02
-        : parent.color == Data.color02
-          ? Data.color03
-          : Data.color01
+        : parent.color == Data.color02 ? Data.color03 : Data.color01
 
     case "random":
     default:
