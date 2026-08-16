@@ -1,0 +1,14 @@
+{
+  "name": "fractal-circles",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "echo \"No build required\"",
+    "deploy": "wrangler deploy",
+    "deploy:preview": "wrangler versions upload"
+  },
+  "devDependencies": {
+    "wrangler": "4.123.0"
+  },
+  "packageManager": "pnpm@10.34.5"
+}
