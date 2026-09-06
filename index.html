@@ -1,18 +1,54 @@
+<!doctype html>
 <html>
 
 <head>
+  <style>
+		.samebase-attribution {
+			align-items: center;
+			color: #737373;
+			display: flex;
+			font: 12px system-ui, sans-serif;
+			margin: 0 10px 0 auto;
+			min-height: 44px;
+			text-decoration: none;
+			width: max-content;
+		}
+
+		.samebase-attribution svg {
+			display: inline-block;
+			height: 0.75em;
+			margin-right: 0.15em;
+			shape-rendering: crispEdges;
+			vertical-align: baseline;
+			width: 0.75em;
+		}
+
+    .samebase-attribution span { border-bottom: 1px solid transparent; white-space: nowrap; }
+
+		.samebase-attribution:hover span { border-bottom-color: currentColor; }
+
+    .samebase-attribution:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 2px;
+    }
+  </style>
 </head>
 
-<body style="margin: 0">
+<body style="margin: 0; display: flex; flex-direction: column; min-height: 100vh;">
   <div id="drawing"></div>
   <canvas id="canvas"></canvas>
-  <div style="position: fixed; top:10; left:10">
+  <div style="position: fixed; top:10px; left:10px">
   	<p id="alpha">Not supported</p>
   	<p id="beta"></p>
   	<p id="gamma"></p>
   	<p id="mouseX"></p>
-  	<p id="mouseY"></p>
+    <p id="mouseY"></p>
   </div>
+  <a class="samebase-attribution" href="https://samebase.com" target="_blank" rel="noopener noreferrer"
+    aria-label="Managed with Samebase"><span>Managed with <b><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" aria-hidden="true">
+				<path d="M0 0h60v60H0z M20 20h20v20H20z" fill="currentColor" fill-rule="evenodd" />
+			</svg>Samebase</b></span>
+  </a>
 
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.2/dat.gui.js"></script>
