@@ -5,7 +5,7 @@
   "scripts": {
     "build": "echo \"No build required\"",
     "deploy": "wrangler deploy",
-    "deploy:preview": "wrangler versions upload"
+    "deploy:preview": "wrangler preview"
   },
   "devDependencies": {
     "wrangler": "4.145.0"
