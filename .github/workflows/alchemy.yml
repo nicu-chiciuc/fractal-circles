@@ -18,7 +18,7 @@ on:
         description: Adopt resources that exist but are not in state yet
         type: boolean
         default: false
-      plan_only:
+      plan:
         description: Show the plan and change nothing
         type: boolean
         default: false
@@ -84,7 +84,7 @@ jobs:
           fi
 
       - name: Show the plan
-        if: inputs.plan_only
+        if: inputs.plan
         run: pnpm exec alchemy plan --stage "$STAGE" --no-input $ADOPT
         env:
           ADOPT: ${{ inputs.adopt && '--adopt' || '' }}
@@ -95,7 +95,7 @@ jobs:
       # --detect-drift compares the Worker with the live account, so a setting changed in the
       # dashboard is repaired. ADOPT is the workflow_dispatch input, empty otherwise.
       - name: Deploy
-        if: ${{ !inputs.plan_only }}
+        if: ${{ !inputs.plan }}
         run: pnpm exec alchemy deploy --stage "$STAGE" --yes --no-input --detect-drift $ADOPT
         env:
           ADOPT: ${{ inputs.adopt && '--adopt' || '' }}

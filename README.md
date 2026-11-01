@@ -15,6 +15,5 @@ Deployment needs the repository secrets `CONVEX_ACCESS_TOKEN`,
 `CLOUDFLARE_API_TOKEN`, and `CLOUDFLARE_ACCOUNT_ID`. State lives in the
 `alchemy-state-store` project of the `nicu` Convex team.
 
-The manual workflow accepts `plan_only` to inspect a production plan and `adopt`
-for the one-time takeover of the existing Worker. Workers Builds is disabled
-after that takeover.
+The manual workflow accepts `plan` to inspect a production plan and `adopt`
+for the one-time takeover of the existing Worker. Workers Builds is disabled.
