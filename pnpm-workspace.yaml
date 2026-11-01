@@ -1,3 +1,8 @@
 allowBuilds:
   esbuild: true
   workerd: true
+overrides:
+  # The versions that effect 4.0.5 and Alchemy run on. A fresh install picks newer ones, which want
+  # a newer effect.
+  "@effect/platform-node-shared": 4.0.5
+  "@effect/sql-d1": 4.0.5
